@@ -1,12 +1,19 @@
 import argparse
 from Window import MainWindow
 from ETools import ETools
+from CommandControll import CommandControll
+
+console_controller = CommandControll()
+
+def log_console(log_str):
+    print(log_str)
 
 def run_as_window():
     MainWindow.show_window()
 
 def run_as_console():
-    pass
+    json_db = ETools.load_json()
+    console_controller.run_process(json_db, log_console)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='External tool for asset download')

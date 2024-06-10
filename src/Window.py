@@ -1,5 +1,4 @@
 import sys
-import subprocess
 import ETools
 from PySide6.QtCore import Qt
 from EditWindow import EditDialog
@@ -178,8 +177,12 @@ class MainWindow(QWidget):
                     ETools.Key_ColumnURL:       self.table.item(row, 4).text()
                 }
                 array_data.append(item_data)
-        print(array_data)
-        self.controll.run_process(array_data)
+        
+        self.controll.run_process(array_data, self.on_process_log)
+
+    def on_process_log(self, log_str):
+        self.console.append(log_str)
+        self.console.ensureCursorVisible()
     
     @staticmethod
     def show_window():
