@@ -1,5 +1,5 @@
 import sys
-import ETools
+from ETools import ETools
 from PySide6.QtCore import Qt
 from EditWindow import EditDialog
 from CommandControll import CommandControll
@@ -17,24 +17,33 @@ from PySide6.QtWidgets import (
     QDialog,
     QSpacerItem,
     QSizePolicy,
-    QTextEdit
+    QTextEdit,
+    QLabel
 )
+from PySide6 import QtGui
 
 class MainWindow(QWidget):
 
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("External Assets")
-        self.resize(600, 400)
+        self.setWindowTitle("Externals Tool")
+        self.resize(1024, 768)
 
         self.setup_ui()
         self.setup_callbacks()
+        self.setup_styles()
         self.fill_table_from_file()
+
+        self.table.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        self.table.horizontalHeader().setMinimumHeight(50)
+        self.table.verticalHeader().setVisible(False)
 
         self.controll = CommandControll()
     
     def setup_ui(self):
+
+        self.setWindowIcon(QtGui.QIcon(ETools.get_execution_path() + "\\..\\Resources\\logo.ico"))
         
         main_layout = QVBoxLayout()
 
@@ -66,12 +75,162 @@ class MainWindow(QWidget):
 
         main_layout.addLayout(button_layout)
 
+        console_text = QLabel()
+        console_text.setText("Log output")
+        main_layout.addWidget(console_text)
+
         # process log
         self.console = QTextEdit()
         self.console.setReadOnly(True)
         main_layout.addWidget(self.console)
         
         self.setLayout(main_layout)
+    
+    def setup_styles(self):
+        self.setObjectName("mainWindow")
+        self.setStyleSheet("""
+            QWidget#mainWindow, QDialog#editEntryWindow {
+                background-color: #121212;
+            }
+            
+            QLabel {
+                color: #f0f0f0;
+            }               
+            
+            QPushButton {
+                background-color: #03DAC6;
+                color: #000000;
+                border: 1px solid #03DAC6;
+                border-radius: 5px;
+                padding: 5px 15px 5px 15px;
+            }
+            QPushButton:hover {
+                background-color: #d0d0d0;
+            }
+            QPushButton:pressed {
+                background-color: #a0a0a0;
+            }
+            
+            QTableWidget {
+                border: none;
+                background-color: #121212;
+                color: #f0f0f0;
+                gridline-color: #121212;
+            }
+            QHeaderView::section {
+                background-color: #191919;
+                color: #f0f0f0;
+                padding: 5px;
+                border: 1px solid #191919;
+                font-weight: bold;
+            }
+            QTableCornerButton::section {
+                background-color: #191919;
+                border: 1px solid #191919;
+            }
+            QTableWidget::item:selected {
+                background-color: #555555;
+                color: #ffffff;
+            }
+                           
+            QScrollBar:vertical {
+                border-radius: 5px;
+                background: #1E1E1E;
+                width: 10px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #03DAC6;
+                min-height: 20px;
+                border-radius: 5px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                border: none;
+                background: none;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+            
+            QCheckBox {
+                spacing: 5px;
+            }
+            QCheckBox::indicator {
+                width: 15px;
+                height: 15px;
+                border-radius: 5px;
+            }
+            QCheckBox::indicator:unchecked {
+                border: 2px solid #555555;
+                background-color: #2e2e2e;
+            }
+            QCheckBox::indicator:checked {
+                border: 2px solid #03DAC6;
+                background-color: #03DAC6;
+            }
+            QCheckBox::indicator:unchecked:hover {
+                border: 2px solid #777777;
+                background-color: #3e3e3e;
+            }
+            QCheckBox::indicator:checked:hover {
+                border: 2px solid #03DAC6;
+                background-color: #aaaaaa;
+            }
+            QCheckBox::indicator:unchecked:pressed {
+                border: 2px solid #aaaaaa;
+                background-color: #555555;
+            }
+            QCheckBox::indicator:checked:pressed {
+                border: 2px solid #03DAC6;
+                background-color: #aaaaaa;
+            }
+                           
+            QTextEdit {
+                background-color: #1E1E1E;
+                color: #f0f0f0;
+                border-radius: 5px;
+                padding: 10px;
+                font-size: 14px;
+                font-family: "Arial";
+            }
+                           
+            QLineEdit {
+                background-color: #1E1E1E;
+                border: 1px solid #1E1E1E;
+                color: #f0f0f0;
+                border-radius: 5px;
+                padding: 5px 10px;
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #777777;
+            }
+                           
+            QComboBox {
+                background-color: #1E1E1E;
+                color: #f0f0f0;
+                border: 1px solid #1E1E1E;
+                border-radius: 5px;
+                padding: 5px 10px;
+                font-size: 14px;
+            }
+            QComboBox:focus {
+                border: 1px solid #777777;
+            }
+            QComboBox::drop-down {
+                border-radius: 5px;
+                background-color: #2e2e2e;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #2e2e2e;
+                color: #f0f0f0;
+                selection-background-color: #444444;
+                selection-color: #ffffff;
+            }
+            QComboBox::item {
+                padding: 5px;
+            }
+        """)
     
     def setup_callbacks(self):
         # table
@@ -88,7 +247,7 @@ class MainWindow(QWidget):
         # clear rows
         self.table.setRowCount(0)
 
-        db_data = ETools.ETools.load_json()
+        db_data = ETools.load_config()
         if db_data is not None:
             for array_item in db_data:
                 name        = array_item[ETools.Key_ColumnName]
@@ -115,6 +274,16 @@ class MainWindow(QWidget):
         self.table.setItem(row, 2, QTableWidgetItem(location))
         self.table.setItem(row, 3, QTableWidgetItem(type_))
         self.table.setItem(row, 4, QTableWidgetItem(url))
+        self.table.setRowHeight(row, 50)
+
+        color = "#1E1E1E" if row % 2 != 0 else "#121212"
+        for i in range(self.table.columnCount()):
+            if i == 0:
+                item = self.table.cellWidget(row, i)
+                item.setStyleSheet(f"background-color: {color};")
+            else:
+                item = self.table.item(row, i)
+                item.setBackground(QtGui.QColor(color))
     
     def open_edit_dialog(self, row, column):
         name        = self.table.item(row, 1).text()
@@ -163,7 +332,7 @@ class MainWindow(QWidget):
             }
             data.append(item_data)
         
-        ETools.ETools.save_json(data)
+        ETools.save_config(data)
     
     def on_run_tool(self):
         array_data = []

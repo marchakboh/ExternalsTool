@@ -7,12 +7,13 @@ from PySide6.QtWidgets import (
     QComboBox
 )
 
-import ETools
+from ETools import ETools
 
 class EditDialog(QDialog):
     def __init__(self, name, location, type_, url, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Edit Entry")
+        self.setObjectName("editEntryWindow")
         self.resize(400, 200)
 
         self.name_input = QLineEdit(name)
@@ -26,10 +27,10 @@ class EditDialog(QDialog):
         self.url_input = QLineEdit(url)
 
         form_layout = QFormLayout()
-        form_layout.addRow(ETools.Key_ColumnName, self.name_input)
-        form_layout.addRow(ETools.Key_ColumnLocation, self.location_input)
-        form_layout.addRow(ETools.Key_ColumnType, self.type_input)
-        form_layout.addRow(ETools.Key_ColumnURL, self.url_input)
+        form_layout.addRow(ETools.Key_ColumnName,       self.name_input)
+        form_layout.addRow(ETools.Key_ColumnLocation,   self.location_input)
+        form_layout.addRow(ETools.Key_ColumnType,       self.type_input)
+        form_layout.addRow(ETools.Key_ColumnURL,        self.url_input)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.button_box.accepted.connect(self.accept)
